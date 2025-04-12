@@ -24,4 +24,6 @@ Thumbs.db
 dist/
 build/
 
+backend/tmp/
+# Temporary files
 tmp/
