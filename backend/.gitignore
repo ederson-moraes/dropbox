@@ -25,4 +25,5 @@ dist/
 build/
 
 # Temporary files
-tmp/
+tmp/*
+!tmp/.gitkeep

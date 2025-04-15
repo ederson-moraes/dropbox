@@ -2,15 +2,19 @@ const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const dotenv = require('dotenv');
+const cors = require('cors');
 dotenv.config();
+app.use(cors( ))
 
-server = require('http').Server(app);
-const io = require('socket.io') (server);
 
 const app = express();
 
+const server = require('http').Server(app);
+const io = require('socket.io') (server);
+
+
 io.on('connection', (socket) => {
-  socket.on('connectRoom', (box) => {
+  socket.on('connectRoom', box => {
     socket.join(box);
   });
 }
@@ -31,13 +35,14 @@ mongoose
   }
 );
 
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/files', express.static(path.resolve(__dirname, '..', 'tmp')));
 
 app.use(require('./routes'));
 
-app.listen(3000, () => {
+server.listen(3000, () => {
   console.log('Server is running on http://localhost:3000');
 }
 );
