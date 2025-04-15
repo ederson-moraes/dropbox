@@ -17,7 +17,9 @@ const File = new mongoose.Schema({
 });
 
 File.virtual('url').get(function() {
-  const baseUrl = process.env.APP_URL || 'http://localhost:3000'; // Use environment variable or default to localhost
+
+  const url = process.env.APP_URL || 'http://localhost:3000'; // Use environment variable or default to localhost
+  
   return `${baseUrl}/files/${encodeURIComponent(this.path)}`;
 });
 

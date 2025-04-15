@@ -4,7 +4,7 @@ const path = require('path');
 const dotenv = require('dotenv');
 const cors = require('cors');
 dotenv.config();
-app.use(cors( ))
+
 
 
 const app = express();
@@ -14,7 +14,7 @@ const io = require('socket.io') (server);
 
 
 io.on('connection', (socket) => {
-  socket.on('connectRoom', box => {
+  socket.on('connectRoom', (box) => {
     socket.join(box);
   });
 }
@@ -35,14 +35,14 @@ mongoose
   }
 );
 
-
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/files', express.static(path.resolve(__dirname, '..', 'tmp')));
 
 app.use(require('./routes'));
 
-server.listen(3000, () => {
+app.listen(process.env.PORT || 3333, () => {
   console.log('Server is running on http://localhost:3000');
 }
 );
