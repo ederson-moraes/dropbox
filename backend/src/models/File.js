@@ -20,7 +20,7 @@ File.virtual('url').get(function() {
 
   const url = process.env.APP_URL || 'http://localhost:3000'; // Use environment variable or default to localhost
   
-  return `${baseUrl}/files/${encodeURIComponent(this.path)}`;
+  return `${url}/files/${encodeURIComponent(this.path)}`;
 });
 
 module.exports = mongoose.model('File', File);
