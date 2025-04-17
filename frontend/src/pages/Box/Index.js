@@ -1,22 +1,34 @@
-import React, { Component } from 'react';
-import api from '../../services/api';
-import { MdInsertDriveFile } from 'react-icons/md';
-import { formatDistance } from 'date-fns';
+import React, { Component } from 'react'
+import api from '../../services/api'
+import { MdInsertDriveFile } from 'react-icons/md'
+import { formatDistance } from 'date-fns'
+import Dropzone from 'react-dropzone'
 import withParams from '../../utils/withParams' // Import the wrapper
 import logo from "../../assets/logo.svg"
-import "./styles.css";
+import "./styles.css"
 
- class Box extends Component {
+class Box extends Component {
   state = {
     box: {},
   };
 
-   async componentDidMount() {
-    const { id } = this.props.params; // Access the id from props
-    const box = await api.get(`boxes/${id}`);
-    this.setState({ box: box.data });
+  async componentDidMount() {
+    const { id } = this.props.params // Access the id from props
+    const box = await api.get(`boxes/${id}`)
+    this.setState({ box: box.data })
 
-    console.log(box.data);
+    console.log(box.data)
+  }
+
+  handleUpload = (files) => {
+    files.forEach(file => {
+      const data = new FormData()
+      const { id } = this.props.params // Access the id from props
+      data.append('file', file)
+
+      api.post(`boxes/${id}/files`, data)
+
+    })
   }
 
   render() {
@@ -27,8 +39,17 @@ import "./styles.css";
           <h1>{this.state.box.title}</h1>
         </header>
 
+        <Dropzone onDropAccepted={this.handleUpload}>
+          {({ getRootProps, getInputProps }) => (
+            <div className="upload" {...getRootProps()}>
+              <input {...getInputProps()} />
+              <p>Drag files or click to select</p>
+            </div>
+          )}
+        </Dropzone>
+
         <ul>
-          { this.state.box.files && this.state.box.files.map(file => (
+          {this.state.box.files && this.state.box.files.map(file => (
             <li key={file._id}>
               <a className='fileInfo' href={file.url} target='blank'>
                 <MdInsertDriveFile size={24} color="#A5CFFF" />
@@ -40,8 +61,8 @@ import "./styles.css";
 
         </ul>
       </div>
-    );
+    )
   }
 }
 
-export default withParams(Box); // Wrap the component with withParams
+export default withParams(Box) // Wrap the component with withParams
