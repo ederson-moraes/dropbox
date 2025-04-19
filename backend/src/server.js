@@ -2,6 +2,8 @@ const express = require('express')
 const mongoose = require('mongoose')
 const path = require('path')
 const cors = require('cors')
+const dotenv = require('dotenv')
+dotenv.config()
 
 const app = express()
 
@@ -17,9 +19,10 @@ io.on('connection', socket => {
 })
 
 mongoose.connect(
-  'mongodb://myDropboxDB:DropboxDB@ec2-54-216-64-56.eu-west-1.compute.amazonaws.com:27017/dropbox',
+  process.env.MONGODB_URI,
   {
     useNewUrlParser: true,
+    useUnifiedTopology: true,
   }
 )
 
@@ -35,4 +38,7 @@ app.use('/files', express.static(path.resolve(__dirname, '..', 'tmp')))
 
 app.use(require('./routes'))
 
-server.listen(process.env.PORT || 3333)
+server.listen(process.env.PORT, () => {
+  console.log('Server started on port', process.env.PORT)
+}
+)
