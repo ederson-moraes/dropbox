@@ -6,15 +6,15 @@
     align-items: center;
 }
 
-#main-container form{
+#main-container form {
     width: 300px;
+
     display: flex;
     flex-direction: column;
-
 }
 
-#main-container form input{
-    height: 48px;
+#main-container form input {
+    height: 45px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 16px;
@@ -22,8 +22,8 @@
     margin-top: 30px;
 }
 
-#main-container form button{
-    height: 48px;
+#main-container form button {
+    height: 45px;
     background: #7159c1;
     border-radius: 4px;
     font-size: 16px;
@@ -33,4 +33,8 @@
     font-weight: bold;
     border: 0;
     cursor: pointer;
+}
+
+#main-container form button:hover {
+    opacity: 0.8;
 }

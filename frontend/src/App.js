@@ -1,16 +1,8 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import './App.css';
-import Main from './pages/Main';
-import Box from './pages/Box'; // Import the Box component
+import React from "react"
+import "./App.css"
 
-const App = () => (
-  <BrowserRouter>
-    <Routes>
-      <Route path="/" element={<Main />} />
-      <Route path="/boxes/:id" element={<Box />} /> {/* Dynamic route for Box */}
-    </Routes>
-  </BrowserRouter>
-);
+import Routes from "./routes"
 
-export default App;
+const App = () => <Routes />
+
+export default App
