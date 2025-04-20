@@ -7,6 +7,11 @@ const routes = express.Router()
 const BoxController = require('./controllers/BoxController')
 const FileController = require('./controllers/FileController')
 
+
+routes.get("/", (req, res) => {
+    res.json({ message: "Hello World!" })
+}
+)
 routes.post("/box", BoxController.store)
 routes.get("/box/:id", BoxController.show)
 routes.post(
