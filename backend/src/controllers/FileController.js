@@ -6,6 +6,13 @@ class FileController {
     async store(req, res) {
         const box = await Box.findById(req.params.id)
 
+        // Check if a file was uploaded
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' })
+        }
+
+        console.log('req.file:', req.file) // Debug log
+
         // Configure the S3 client
         const s3 = new S3Client({
             region: process.env.AWS_REGION,
