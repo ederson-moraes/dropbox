@@ -1,6 +1,8 @@
+const fs = require('fs')
+const path = require('path')
 const Box = require('../models/Box')
 const File = require('../models/File')
-const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3') // Import AWS SDK v3
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3')
 
 class FileController {
     async store(req, res) {
@@ -11,40 +13,53 @@ class FileController {
             return res.status(400).json({ error: 'No file uploaded' })
         }
 
-        console.log('req.file:', req.file) // Debug log
-
-        // Configure the S3 client
-        const s3 = new S3Client({
-            region: process.env.AWS_REGION,
-            credentials: {
-                accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-                secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-            },
-        })
-
         try {
-            // Define the S3 bucket path
-            const subPath = `uploads/box-${req.params.id}/`
-            const s3Key = `${subPath}${req.file.originalname}`
+            let fileUrl
+            let filePath
 
-            // Upload the file to S3
-            const params = {
-                Bucket: process.env.AWS_BUCKET_NAME,
-                Key: s3Key, // File path in the bucket
-                Body: req.file.buffer, // Use the file buffer from multer
-                ContentType: req.file.mimetype, // Set the content type
+            if (process.env.NODE_ENV === 'production') {
+                // Use S3 for production
+                const s3 = new S3Client({
+                    region: process.env.AWS_REGION,
+                    credentials: {
+                        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+                        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+                    },
+                })
+
+                const subPath = `uploads/box-${req.params.id}/`
+                const s3Key = `${subPath}${req.file.originalname}`
+
+                const params = {
+                    Bucket: process.env.AWS_BUCKET_NAME,
+                    Key: s3Key,
+                    Body: req.file.buffer,
+                    ContentType: req.file.mimetype,
+                }
+
+                const command = new PutObjectCommand(params)
+                await s3.send(command)
+
+                fileUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`
+                filePath = s3Key
+            } else {
+                // Use local storage for development
+                const uploadsPath = path.resolve(__dirname, '..', '..', 'uploads', `box-${req.params.id}`)
+                if (!fs.existsSync(uploadsPath)) {
+                    fs.mkdirSync(uploadsPath, { recursive: true })
+                }
+
+                const localFilePath = path.join(uploadsPath, req.file.originalname)
+                fs.writeFileSync(localFilePath, req.file.buffer)
+
+                fileUrl = `${process.env.BASE_URL}:${process.env.PORT}/uploads/box-${req.params.id}/${req.file.originalname}`
+                filePath = `uploads/box-${req.params.id}/${req.file.originalname}`
             }
-
-            const command = new PutObjectCommand(params)
-            await s3.send(command)
-
-            // Generate the file URL
-            const fileUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`
 
             // Save the file metadata to the database
             const file = await File.create({
                 title: req.file.originalname,
-                path: s3Key, // Save the S3 key as the path
+                path: filePath,
             })
 
             // Add the file to the box
@@ -54,17 +69,17 @@ class FileController {
             // Notify all users in the box about the new file
             req.io.sockets.in(box._id).emit("file", {
                 ...file.toObject(),
-                url: fileUrl, // Include the generated URL in the emitted event
+                url: fileUrl,
             })
 
             // Return the file metadata with the URL
             return res.json({
                 ...file.toObject(),
-                url: fileUrl, // Include the generated URL in the response
+                url: fileUrl,
             })
         } catch (err) {
             console.error(err)
-            return res.status(500).json({ error: 'Failed to upload file to S3', details: err.message })
+            return res.status(500).json({ error: 'Failed to upload file', details: err.message })
         }
     }
 }

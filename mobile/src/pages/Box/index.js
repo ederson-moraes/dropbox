@@ -25,7 +25,7 @@ export default class Box extends Component {
     }
 
     subscribeToNewFiles = (box) => {
-        const io = socket("http://192.168.1.139:3333")
+        const io = socket("https://dropbox-owgt.onrender.com/")
 
         io.on("connect", () => {
             console.log("Connected to socket server")
